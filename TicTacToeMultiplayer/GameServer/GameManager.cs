@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace GameServer
 {
@@ -9,9 +10,16 @@ namespace GameServer
 
         public GameManager()
         {
+            Reset();
+        }
+
+        public void Reset()
+        {
             for (int i = 0; i < 3; i++)
                 for (int j = 0; j < 3; j++)
                     board[i, j] = '.';
+
+            currentPlayer = 'X';
         }
 
         public bool MakeMove(int row, int col)
@@ -31,7 +39,6 @@ namespace GameServer
 
         public char CheckWinner()
         {
-            // righe, colonne, diagonali
             for (int i = 0; i < 3; i++)
             {
                 if (board[i, 0] != '.' && board[i, 0] == board[i, 1] && board[i, 1] == board[i, 2])
@@ -46,6 +53,10 @@ namespace GameServer
 
             if (board[0, 2] != '.' && board[0, 2] == board[1, 1] && board[1, 1] == board[2, 0])
                 return board[0, 2];
+
+            // pareggio: se non ci sono più celle vuote, ma nessuno ha vinto, è un pareggio
+            if (!board.Cast<char>().Any(c => c == '.'))
+                return 'T';
 
             return '.';
         }

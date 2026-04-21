@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace GameServer
 {
@@ -10,6 +11,8 @@ namespace GameServer
         private ClientHandler playerX;
         private ClientHandler playerO;
         private GameManager game = new();
+
+        private char currentTurn = 'X';
 
         public void Start()
         {
@@ -27,17 +30,27 @@ namespace GameServer
             playerX.Send(Protocol.Format("START", "X"));
             playerO.Send(Protocol.Format("START", "O"));
 
-            playerX.Start();
-            playerO.Start();
+            // thread separati per efficientare la gestione dei client
+            Task.Run(() => playerX.Start());
+            Task.Run(() => playerO.Start());
         }
 
         public void HandleMove(ClientHandler player, int r, int c)
         {
+            if (player.Symbol != currentTurn)
+            {
+                player.Send(Protocol.Format("ERROR", "Non è il tuo turno"));
+                return;
+            }
+
             if (!game.MakeMove(r, c))
             {
                 player.Send(Protocol.Format("ERROR", "Mossa non valida"));
                 return;
             }
+
+            // cambio del turno dei giocatori e relativi controlli
+            currentTurn = currentTurn == 'X' ? 'O' : 'X';
 
             string board = game.GetBoard();
 

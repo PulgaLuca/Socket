@@ -1,2 +1,16 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using System;
+
+namespace GameServer
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Server server = new Server();
+            server.Start();
+
+            Console.WriteLine("Premi per chiudere...");
+            Console.ReadLine();
+        }
+    }
+}

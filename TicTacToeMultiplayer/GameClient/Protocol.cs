@@ -8,7 +8,6 @@
             return (parts[0], parts);
         }
 
-        public static string Format(params string[] parts)
-            => string.Join("|", parts);
+        public static string Format(params string[] parts) => string.Join("|", parts);
     }
 }

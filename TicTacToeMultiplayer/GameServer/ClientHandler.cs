@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 using System.Text;
 
 namespace GameServer
@@ -7,13 +8,13 @@ namespace GameServer
     {
         private TcpClient _client;
         private Server _server;
-        private char _symbol;
+        public char Symbol { get; }
 
         public ClientHandler(TcpClient client, Server server, char symbol)
         {
             _client = client;
             _server = server;
-            _symbol = symbol;
+            Symbol = symbol;
         }
 
         public void Start()
@@ -21,20 +22,29 @@ namespace GameServer
             var stream = _client.GetStream();
             byte[] buffer = new byte[1024];
 
-            while (true)
+            try
             {
-                int bytes = stream.Read(buffer);
-                string msg = Encoding.UTF8.GetString(buffer, 0, bytes);
-
-                var (cmd, parts) = Protocol.Parse(msg);
-
-                if (cmd == "MOVE")
+                while (true)
                 {
-                    int r = int.Parse(parts[1]);
-                    int c = int.Parse(parts[2]);
+                    int bytes = stream.Read(buffer);
+                    if (bytes == 0) break;
 
-                    _server.HandleMove(this, r, c);
+                    string msg = Encoding.UTF8.GetString(buffer, 0, bytes);
+
+                    var (cmd, parts) = Protocol.Parse(msg);
+
+                    if (cmd == "MOVE")
+                    {
+                        int r = int.Parse(parts[1]);
+                        int c = int.Parse(parts[2]);
+
+                        _server.HandleMove(this, r, c);
+                    }
                 }
+            }
+            catch
+            {
+                Console.WriteLine("Client disconnesso dal gioco");
             }
         }
 

@@ -9,17 +9,17 @@ namespace GameClient
     {
         public void Start()
         {
-            TcpClient client = new TcpClient("127.0.0.1", 5000);
+            TcpClient client = new TcpClient("127.0.0.1", 5000); // socket TCP per connettersi al server
             var stream = client.GetStream();
 
             Task.Run(() => Receive(stream));
 
             while (true)
             {
-                Console.Write("riga colonna: ");
+                Console.Write("riga colonna: \n");
                 var input = Console.ReadLine().Split(' ');
 
-                string msg = Protocol.Format("MOVE", input[0], input[1]);
+                string msg = Protocol.Format("MOVE", input[0], input[1]); // il protocollo è custom, è un modo per formattare i messaggi in uscita
                 Send(stream, msg);
             }
         }
@@ -42,11 +42,15 @@ namespace GameClient
                         break;
 
                     case "UPDATE":
+                        Console.WriteLine("\nStato del gioco:\n");
                         PrintBoard(parts[1]);
                         break;
 
                     case "WIN":
-                        Console.WriteLine($"Vince {parts[1]}");
+                        if (parts[1] == "T")
+                            Console.WriteLine("Pareggio!");
+                        else
+                            Console.WriteLine($"Vince il giocatore: {parts[1]}");
                         break;
 
                     case "ERROR":
